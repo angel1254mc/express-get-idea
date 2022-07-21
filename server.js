@@ -90,6 +90,6 @@ app.get('/glossary/term/:term', async (req, res) => {
     
 })
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("Server began listening on port 3000.");
 })
