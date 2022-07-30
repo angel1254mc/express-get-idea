@@ -3,7 +3,7 @@ const Router = express.Router();
 const registerController = require('../Controllers/registerController');
 const verifyJWT = require('../Middleware/verifyJWT.js');
 
-Router.route('/').post(registerController)
+Router.post('/', verifyJWT, registerController);
 
 
 module.exports = Router;

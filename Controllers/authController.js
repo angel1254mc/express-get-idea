@@ -14,20 +14,21 @@ const loginUser = async (req, res) => {
     //Now check if password matches user in db
     const compare = await bcrypt.compare(password, userInDB.password);
     if (compare) //If passwords match, then
-    {  const accessToken = jwt.sign(
-            { "username": userInDB.user},
-            provess.env.ACCESS_TOKEN_SECRET,
+    {  
+        const accessToken = jwt.sign(
+            { "user": userInDB.user},
+            process.env.ACCESS_TOKEN_SECRET,
             {expiresIn: '30s'}
         );
         const refreshToken = jwt.sign(
-            { "username": userInDB.user},
-            provess.env.REFRESH_TOKEN_SECRET,
+            { "user": userInDB.user},
+            process.env.REFRESH_TOKEN_SECRET,
             {expiresIn: '1d'}
         );
         await collection.updateOne(
             {user: user},
             {$set: {
-                accessToken: accessToken,
+                refreshToken: refreshToken,
             }},
             { upsert: true }) //Update the user object with the new access token
 

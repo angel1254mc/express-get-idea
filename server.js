@@ -5,6 +5,7 @@ const glossary = require("./Routers/glossary.js");
 const addTerm = require("./Routers/addterm.js")
 const register = require("./Routers/register.js");
 const login = require("./Routers/login.js");
+const refresh = require("./Routers/refresh.js");
 //Want to have a really concise way of constructing the aggregation query
 /**
  * @Function ConstructAggregation returns a properly formatted text $search query based on a searchTerm, desired limit of results, and some pagination
@@ -21,11 +22,13 @@ const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-var jsonParser = bodyParser.json()
+var jsonParser = bodyParser.json();
+const credentials = require("./Middleware/credentials.js");
 
 app.use(cors()); //Utilize CORS later to only whitelist certain requests.
 app.use(jsonParser);
-app.use(cookieParser)
+app.use(cookieParser());
+app.use(credentials);
 /**
  * Base Path sends an html path introducing the user to the GET API
  * Possibly in the future include a description of what the API does and the company behind it (Emerging  Tech)
@@ -37,7 +40,8 @@ app.get('/' , async (req, res) => {
 app.use('/glossary', glossary);
 app.use('/addterm', addTerm);
 app.use('/register', register);
-app.use('/login', login)
+app.use('/login', login);
+app.use('/refresh', refresh);
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server began listening on port 3000.");
