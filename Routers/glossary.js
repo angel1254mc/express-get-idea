@@ -21,8 +21,8 @@ const client = require('../MongoInit.js').client;
     if (req.query && req.method == "GET") //If the http request contains query parameters and is a "GET" request,
     {
         const termToSearchFor = decodeURIComponent(req.query.term);
-        const page  = req.query.page ? req.query.page : 1; //pagination of results
-        const results_per_page = req.query.results_per_page ? req.query.results_per_page : 3;
+        const page  = req.query.page ? parseInt(req.query.page) : 1; //pagination of results
+        const results_per_page = req.query.results_per_page ? parseInt(req.query.results_per_page) : 3;
 
         try {
             const db = client.db("GlossaryEmergingTech");
@@ -105,6 +105,7 @@ const constructAggregation = (searchTerm, resultLimit, page) => {
             TITLE: 2,
             DESCRIPTION: 1,
             SOURCE: 1,
+            ABBREVIATIONS: 1,
             _id: 0,
             score: {
               $meta: "searchScore"
