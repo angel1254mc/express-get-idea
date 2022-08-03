@@ -8,7 +8,9 @@ Router.post('/' , async (req, res) => {
     const termsToBeAdded = db.collection("TermsToBeAddedTest"); //Currently using a fake db for testing the functionality of this endpoint
     //Stores the request body
     const body = req.body;
-
+    const termAlreadyExists = await termsToBeAdded.findOne({'TITLE': body.name});
+    if (termAlreadyExists)
+           return res.status(304).send({message: "Term already exists in database"});
     //Inserts a single term to the database, waits for it to finalize
     await termsToBeAdded.insertOne({
         'TITLE': body.name,
