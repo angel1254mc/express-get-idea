@@ -24,11 +24,12 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 var jsonParser = bodyParser.json();
 const credentials = require("./Middleware/credentials.js");
-
-app.use(cors()); //Utilize CORS later to only whitelist certain requests.
+const corsOptions = require("./config/corsOptions.js");
+ //Utilize CORS later to only whitelist certain requests.
 app.use(jsonParser);
 app.use(cookieParser());
 app.use(credentials);
+app.use(cors(corsOptions));
 /**
  * Base Path sends an html path introducing the user to the GET API
  * Possibly in the future include a description of what the API does and the company behind it (Emerging  Tech)
