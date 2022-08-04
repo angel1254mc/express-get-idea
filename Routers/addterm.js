@@ -9,8 +9,14 @@ Router.post('/' , async (req, res) => {
     //Stores the request body
     const body = req.body;
     const termAlreadyExists = await termsToBeAdded.findOne({'TITLE': body.name});
-    if (termAlreadyExists)
-           return res.status(304).send({message: "Term already exists in database"});
+    if (termAlreadyExists && termAlreadyExists['REQUESTER_EMAIL'].includes(body.email))
+    {
+        return res.status(201).send({message: "Chill out bro, your term is already requested"})
+    }
+    else if (termAlreadyExists) {
+        await termsToBeAdded.updateOne({'TITLE': body.name}, {$set: {'REQUESTER_EMAIL' : termAlreadyExists['REQUESTER_EMAIL'] + ', ' + body.email}})
+        return res.status(200).send({message: "Term is already requested, you will be notified when it is added"})
+    }
     //Inserts a single term to the database, waits for it to finalize
     await termsToBeAdded.insertOne({
         'TITLE': body.name,
