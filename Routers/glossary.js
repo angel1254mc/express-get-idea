@@ -16,7 +16,30 @@ const client = require('../MongoInit.js').client;
  * @response an array of "term" objects containing info about the search results, such as the term name "TITLE", the term description "DESCRIPTION", and the source "SOURCE"
  * @note all of the info returned in the term "objects" can be verified using Object.keys();
  */
-
+ Router.get('/retrieveall', async (req, res) => {
+  const aliasToCollection = {
+    'requested': 'TermsToBeAddedTest', //Change this for production environment
+    'glossary': 'Terms'
+  }
+  if (req.query && req.method == "GET") 
+  {
+    const page = parseInt(req.query.page);
+    const results_per_page = parseInt(req.query.results_per_page);
+    const collection_alias = req.query.collection_alias;
+    if (!page || !results_per_page || !collection_alias) return res.status(400).json({message: "Please include all params: page, collection alias, and results per page"});
+    try {
+      const db= client.db("GlossaryEmergingTech");
+      const collection = db.collection(aliasToCollection[collection_alias]);
+      const results = await collection.find({}).skip((page-1)*results_per_page).limit(results_per_page).toArray();
+      return res.send(results);
+    }
+    catch (err)
+    {
+      console.log("Error ocurred: ", err)
+      res.status(500).send("Internal Server Error at OptimizedSearch - Check MongoDB collection code");
+    }
+  }
+ })
  Router.get('/', async (req, res) => {
     if (req.query && req.method == "GET") //If the http request contains query parameters and is a "GET" request,
     {
