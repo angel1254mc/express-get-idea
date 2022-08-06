@@ -7,15 +7,24 @@ const client = require('../MongoInit.js').client;
  * @path /glossary/term - The base URL for receiving the definition and extra details of an exact term. Virtually useless, requires an extra param /:term to get the information for
  */
 
-/**
- * @PATH /glossary?
- * @request a GET Request meant to query the server for a term, that the server will conduct a search for in the database.
- * @param term: a URI decoded string - the "search term" to be used in the search query
- * @param page: "page" of results that is trying to be accessed. Implementation currently in progress
- * @param results_per_page: The amount of results to be returned per page when the search query is conducted.
- * @response an array of "term" objects containing info about the search results, such as the term name "TITLE", the term description "DESCRIPTION", and the source "SOURCE"
- * @note all of the info returned in the term "objects" can be verified using Object.keys();
- */
+ Router.get('/collectionsize', async (req, res) => {
+  const aliasToCollection = {
+    'requested': 'TermsToBeAddedTest', //Change this for production environment
+    'glossary': 'Terms'
+  }
+  if (req.query && req.method == "GET") 
+  {
+    const collection_alias = req.query.collection_alias;
+    if (!collection_alias) return res.status(400).json({message: "Please include collection_alias w/ request"});
+    const db= client.db("GlossaryEmergingTech");
+    const collection = db.collection(aliasToCollection[collection_alias]);
+    const count = await collection.countDocuments({});
+    return res.json({totalElements: count});
+  }
+ })
+ /**
+  * 
+  */
  Router.get('/retrieveall', async (req, res) => {
   const aliasToCollection = {
     'requested': 'TermsToBeAddedTest', //Change this for production environment
@@ -40,6 +49,16 @@ const client = require('../MongoInit.js').client;
     }
   }
  })
+
+ /**
+ * @PATH /glossary?
+ * @request a GET Request meant to query the server for a term, that the server will conduct a search for in the database.
+ * @param term: a URI decoded string - the "search term" to be used in the search query
+ * @param page: "page" of results that is trying to be accessed. Implementation currently in progress
+ * @param results_per_page: The amount of results to be returned per page when the search query is conducted.
+ * @response an array of "term" objects containing info about the search results, such as the term name "TITLE", the term description "DESCRIPTION", and the source "SOURCE"
+ * @note all of the info returned in the term "objects" can be verified using Object.keys();
+ */
  Router.get('/', async (req, res) => {
     if (req.query && req.method == "GET") //If the http request contains query parameters and is a "GET" request,
     {
