@@ -21,12 +21,12 @@ const client = require('../MongoInit.js').client;
     if (req.query.is_search)
     {
       const count = await collection.aggregate(constructAggregation(req.query.search_term, 100, 1)).toArray();
-      return res.json({totalElements: count});
+      return res.json({totalElements: count.length});
     }
     else
     {
       const count = await collection.countDocuments({});
-      return res.json({totalElements: count.length});
+      return res.json({totalElements: count});
     }
   }
  })
