@@ -17,9 +17,17 @@ const client = require('../MongoInit.js').client;
     const collection_alias = req.query.collection_alias;
     if (!collection_alias) return res.status(400).json({message: "Please include collection_alias w/ request"});
     const db= client.db("GlossaryEmergingTech");
-    const collection = db.collection(aliasToCollection[collection_alias]);
-    const count = await collection.countDocuments({});
-    return res.json({totalElements: count});
+    const collection = db.collection(aliasToCollection[collection_alias]); 
+    if (req.query.is_search)
+    {
+      const count = await collection.aggregate(constructAggregation(req.query.search_term, 100, 1)).toArray();
+      return res.json({totalElements: count});
+    }
+    else
+    {
+      const count = await collection.countDocuments({});
+      return res.json({totalElements: count.length});
+    }
   }
  })
  /**
@@ -60,15 +68,19 @@ const client = require('../MongoInit.js').client;
  * @note all of the info returned in the term "objects" can be verified using Object.keys();
  */
  Router.get('/', async (req, res) => {
+    const aliasToCollection = {
+      'requested': 'TermsToBeAddedTest', //Change this for production environment
+      'glossary': 'Terms'
+    }
     if (req.query && req.method == "GET") //If the http request contains query parameters and is a "GET" request,
     {
         const termToSearchFor = decodeURIComponent(req.query.term);
         const page  = req.query.page ? parseInt(req.query.page) : 1; //pagination of results
         const results_per_page = req.query.results_per_page ? parseInt(req.query.results_per_page) : 3;
-
+        const collection_alias = req.query.collection_alias ? req.query.collection_alias : 'glossary'
         try {
             const db = client.db("GlossaryEmergingTech");
-            const collection = db.collection("Terms");
+            const collection = db.collection(aliasToCollection[collection_alias]);
             const results = await collection.aggregate(constructAggregation(termToSearchFor, results_per_page, page)).toArray()
             /**@const results is an array of "term" objects with term info, abbreviation, definition, and source. Defaults to a length of 3, but can be changed */
             return res.send(results);
@@ -137,7 +149,7 @@ const constructAggregation = (searchTerm, resultLimit, page) => {
           }
         },
         {
-            $limit: resultLimit,
+            $limit: (page-1)*resultLimit + resultLimit,
         },
         {
             $skip: (page-1)*resultLimit,
