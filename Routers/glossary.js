@@ -18,7 +18,7 @@ const client = require('../MongoInit.js').client;
     if (!collection_alias) return res.status(400).json({message: "Please include collection_alias w/ request"});
     const db= client.db("GlossaryEmergingTech");
     const collection = db.collection(aliasToCollection[collection_alias]); 
-    if (req.query.is_search)
+    if (req.query.search_term)
     {
       const count = await collection.aggregate(constructAggregation(req.query.search_term, 100, 1)).toArray();
       return res.json({totalElements: count.length});
