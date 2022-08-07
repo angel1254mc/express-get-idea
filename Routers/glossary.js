@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const { ObjectId } = require('mongodb');
 const Router = express.Router();
 const client = require('../MongoInit.js').client;
 /** GLOSSARY
@@ -6,7 +7,23 @@ const client = require('../MongoInit.js').client;
  * @path /glossary? - Queries done on glossary are specifically for searching for terms on the database. More information on query parameters below
  * @path /glossary/term - The base URL for receiving the definition and extra details of an exact term. Virtually useless, requires an extra param /:term to get the information for
  */
-
+ Router.get('/findById', async (req, res) => {
+  const aliasToCollection = {
+    'requested': 'TermsToBeAddedTest', //Change this for production environment
+    'glossary': 'Terms'
+  }
+  if (req.query.id && req.query.collection_alias)
+  {
+    console.log("ID of item: " + req.query.id);
+    console.log("collection_alias: " + req.query.collection_alias)
+    const db = client.db("GlossaryEmergingTech");
+    const collection = db.collection(aliasToCollection[req.query.collection_alias]);
+    const term = await collection.findOne({'_id': new ObjectId(req.query.id)});
+    return res.json(term);
+  }
+  else
+    return res.status(400).json({message: "Missing a query parameter- object ID or collection_alias"})
+ })
  Router.get('/collectionsize', async (req, res) => {
   const aliasToCollection = {
     'requested': 'TermsToBeAddedTest', //Change this for production environment
@@ -160,7 +177,7 @@ const constructAggregation = (searchTerm, resultLimit, page) => {
             DESCRIPTION: 1,
             SOURCE: 1,
             ABBREVIATIONS: 1,
-            _id: 0,
+            _id: 1,
             score: {
               $meta: "searchScore"
             },
