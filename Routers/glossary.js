@@ -1,5 +1,5 @@
 const express = require('express');
-const { ObjectId } = require('mongodb');
+const { ObjectId, ObjectID } = require('mongodb');
 const Router = express.Router();
 const client = require('../MongoInit.js').client;
 /** GLOSSARY
@@ -14,6 +14,7 @@ const client = require('../MongoInit.js').client;
   }
   if (req.query.id && req.query.collection_alias)
   {
+    if (!ObjectId.isValid(req.query.id)) return res.status(400).json({message: "Invalid format for id param"});
     console.log("ID of item: " + req.query.id);
     console.log("collection_alias: " + req.query.collection_alias)
     const db = client.db("GlossaryEmergingTech");
