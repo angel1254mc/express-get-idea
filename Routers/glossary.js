@@ -1,81 +1,32 @@
 const express = require('express');
 const { ObjectId, ObjectID } = require('mongodb');
+const browseCollection = require('../Controllers/Glossary/browseCollection.js');
 const Router = express.Router();
 const client = require('../MongoInit.js').client;
+const findByIdController = require('../Controllers/Glossary/findByIdController.js');
+const updateTerm = require('../Controllers/Glossary/updateTermController.js');
+const deleteTerm = require('../Controllers/Glossary/deleteTermController.js');
+const createTerm = require('../Controllers/Glossary/createTermController.js');
+const searchSize = require('../Controllers/Glossary/searchSize.js');
+
+const approveTerm = require('../Controllers/Glossary/approveTermController.js');
+const denyTerm = require('../Controllers/Glossary/denyTermController.js');
 /** GLOSSARY
  * @path /glossary is going to be the starting point for a number of operations
  * @path /glossary? - Queries done on glossary are specifically for searching for terms on the database. More information on query parameters below
  * @path /glossary/term - The base URL for receiving the definition and extra details of an exact term. Virtually useless, requires an extra param /:term to get the information for
  */
- Router.get('/findById', async (req, res) => {
-  const aliasToCollection = {
-    'requested': 'TermsToBeAddedTest', //Change this for production environment
-    'glossary': 'Terms'
-  }
-  if (req.query.id && req.query.collection_alias)
-  {
-    if (!ObjectId.isValid(req.query.id)) return res.status(400).json({message: "Invalid format for id param"});
-    console.log("ID of item: " + req.query.id);
-    console.log("collection_alias: " + req.query.collection_alias)
-    const db = client.db("GlossaryEmergingTech");
-    const collection = db.collection(aliasToCollection[req.query.collection_alias]);
-    const term = await collection.findOne({'_id': new ObjectId(req.query.id)});
-    return res.json(term);
-  }
-  else
-    return res.status(400).json({message: "Missing a query parameter- object ID or collection_alias"})
- })
- Router.get('/collectionsize', async (req, res) => {
-  const aliasToCollection = {
-    'requested': 'TermsToBeAddedTest', //Change this for production environment
-    'glossary': 'Terms'
-  }
-  if (req.query && req.method == "GET") 
-  {
-    const collection_alias = req.query.collection_alias;
-    if (!collection_alias) return res.status(400).json({message: "Please include collection_alias w/ request"});
-    const db= client.db("GlossaryEmergingTech");
-    const collection = db.collection(aliasToCollection[collection_alias]); 
-    if (req.query.search_term)
-    {
-      const count = await collection.aggregate(constructAggregation(req.query.search_term, 100, 1)).toArray();
-      return res.json({totalElements: count.length});
-    }
-    else
-    {
-      const count = await collection.countDocuments({});
-      return res.json({totalElements: count});
-    }
-  }
- })
- /**
-  * 
-  */
- Router.get('/retrieveall', async (req, res) => {
-  const aliasToCollection = {
-    'requested': 'TermsToBeAddedTest', //Change this for production environment
-    'glossary': 'Terms'
-  }
-  if (req.query && req.method == "GET") 
-  {
-    const page = parseInt(req.query.page);
-    const results_per_page = parseInt(req.query.results_per_page);
-    const collection_alias = req.query.collection_alias;
-    if (!page || !results_per_page || !collection_alias) return res.status(400).json({message: "Please include all params: page, collection alias, and results per page"});
-    try {
-      const db= client.db("GlossaryEmergingTech");
-      const collection = db.collection(aliasToCollection[collection_alias]);
-      const results = await collection.find({}).skip((page-1)*results_per_page).limit(results_per_page).toArray();
-      return res.send(results);
-    }
-    catch (err)
-    {
-      console.log("Error ocurred: ", err)
-      res.status(500).send("Internal Server Error at OptimizedSearch - Check MongoDB collection code");
-    }
-  }
- })
 
+ Router.get('/searchsize', searchSize);
+
+ Router.get('/browsecollection', browseCollection);
+ Router.post('/denyrequested', denyTerm);
+ Router.post('/approverequested', approveTerm);
+
+ Router.get('/findById', findByIdController);
+ Router.post('/updateterm', updateTerm);
+ Router.post('/deleteterm', deleteTerm);
+ Router.post('/createterm', createTerm);
  /**
  * @PATH /glossary?
  * @request a GET Request meant to query the server for a term, that the server will conduct a search for in the database.
