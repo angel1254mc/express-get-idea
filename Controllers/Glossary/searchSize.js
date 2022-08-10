@@ -14,7 +14,7 @@ const aliasToCollection = {
    */
 const searchSize = async (req, res) => {
     if (!req.query?.collection_alias) return res.status(400).json({message: "Please include collection_alias as a query param"});
-
+    
     const collection_name = aliasToCollection[req.query.collection_alias];
 
     const db = MongoClient.db("GlossaryEmergingTech");

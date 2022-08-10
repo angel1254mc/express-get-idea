@@ -11,6 +11,7 @@ const searchSize = require('../Controllers/Glossary/searchSize.js');
 
 const approveTerm = require('../Controllers/Glossary/approveTermController.js');
 const denyTerm = require('../Controllers/Glossary/denyTermController.js');
+const verifyServerAccess = require('../Middleware/verifyServerAccess.js');
 /** GLOSSARY
  * @path /glossary is going to be the starting point for a number of operations
  * @path /glossary? - Queries done on glossary are specifically for searching for terms on the database. More information on query parameters below
@@ -20,13 +21,13 @@ const denyTerm = require('../Controllers/Glossary/denyTermController.js');
  Router.get('/searchsize', searchSize);
 
  Router.get('/browsecollection', browseCollection);
- Router.post('/denyrequested', denyTerm);
- Router.post('/approverequested', approveTerm);
+ Router.post('/denyrequested', verifyServerAccess, denyTerm);
+ Router.post('/approverequested', verifyServerAccess, approveTerm);
 
  Router.get('/findById', findByIdController);
- Router.post('/updateterm', updateTerm);
- Router.post('/deleteterm', deleteTerm);
- Router.post('/createterm', createTerm);
+ Router.post('/updateterm', verifyServerAccess,  updateTerm);
+ Router.post('/deleteterm', verifyServerAccess, deleteTerm);
+ Router.post('/createterm', verifyServerAccess, createTerm);
  /**
  * @PATH /glossary?
  * @request a GET Request meant to query the server for a term, that the server will conduct a search for in the database.

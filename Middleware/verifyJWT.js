@@ -10,13 +10,12 @@ require('dotenv').config();
  * @returns 
  */
 const verifyJWT = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) res.status(401).json({message: "Error: Not authenticated"});
-    //Line above is for when the header does not exist in the http header
-    const token = authHeader.split(' ')[1];
+    const token = req.cookies?.etgetjwt;
+    console.log("we mad it here")
+    console.log(token)
     jwt.verify(
         token,
-        process.env.ACCESS_TOKEN_SECRET,
+        process.env.REFRESH_TOKEN_SECRET,
         (err, decoded) => {
             if (err) return res.status(403).json({message: "Forbidden. Token is invalid or has been tampered with"})
             req.user = decoded.username;

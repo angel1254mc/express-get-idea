@@ -11,7 +11,7 @@ const handleRefreshToken = async (req, res) => {
     if (!cookies?.jwt) return res.status(401).json({message: 'Missing cookies and/or JWT auth token'});
     const db = MongoClient.db('GlossaryEmergingTech');
     const collection = db.collection("Users");
-    const refreshToken = cookies.jwt;
+    const refreshToken = cookies.ETGETjwt;
     //Find the person with the refresh token found in the header
     const foundUser = await collection.findOne({refreshToken: refreshToken});
     if (!foundUser) return res.status(403).json({message: "The user for the refreshToken doesn't exist"});
