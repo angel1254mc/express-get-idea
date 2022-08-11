@@ -21,13 +21,13 @@ const verifyServerAccess = require('../Middleware/verifyServerAccess.js');
  Router.get('/searchsize', searchSize);
 
  Router.get('/browsecollection', browseCollection);
- Router.post('/denyrequested', verifyServerAccess, denyTerm);
- Router.post('/approverequested', verifyServerAccess, approveTerm);
+ Router.post('/denyrequested', denyTerm);
+ Router.post('/approverequested', approveTerm);
 
  Router.get('/findById', findByIdController);
- Router.post('/updateterm', verifyServerAccess,  updateTerm);
- Router.post('/deleteterm', verifyServerAccess, deleteTerm);
- Router.post('/createterm', verifyServerAccess, createTerm);
+ Router.post('/updateterm',  updateTerm);
+ Router.post('/deleteterm', deleteTerm);
+ Router.post('/createterm', createTerm);
  /**
  * @PATH /glossary?
  * @request a GET Request meant to query the server for a term, that the server will conduct a search for in the database.
