@@ -32,7 +32,7 @@ const loginUser = async (req, res) => {
             }},
             { upsert: true }) //Update the user object with the new access token
 
-        res.cookie('jwt', refreshToken, {httpOnly: true, sameSite: 'None', secure: true, maxAge: 24*60*60*1000});
+        res.cookie('ETGETjwt', refreshToken, {httpOnly: true, sameSite: 'None', secure: true, maxAge: 60*60*1000});
         return res.status(201).json({
             message: `Login Successful, user ${user} is now logged in.`,
             accessToken: accessToken })
